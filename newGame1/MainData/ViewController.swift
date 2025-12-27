@@ -4,7 +4,7 @@ import SnapKit
 
 class ViewController: UIViewController {
     
-    private var splashVC: SplashViewController?
+    private var splashVC: StartVC?
     private var dataCheckTimer: Timer?
     
     private var mainImageView: WKWebView?
@@ -34,38 +34,13 @@ class ViewController: UIViewController {
     }
     
     private func showMainInterface() {
-        let tabBarController = UITabBarController()
-        
-        let firstVC = BaseVC()
-        firstVC.title = "Home"
-        let nav1 = UINavigationController(rootViewController: firstVC)
-        nav1.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
-        
-        let secondVC = UIViewController()
-        secondVC.view.backgroundColor = .white
-        secondVC.title = "???"
-        let nav2 = UINavigationController(rootViewController: secondVC)
-        nav2.tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 1)
-        
-        let thirdVC = UIViewController()
-        thirdVC.view.backgroundColor = .white
-        thirdVC.title = "???"
-        let nav3 = UINavigationController(rootViewController: thirdVC)
-        nav3.tabBarItem = UITabBarItem(tabBarSystemItem: .contacts, tag: 2)
-        
-        tabBarController.viewControllers = [nav1, nav2, nav3]
-        
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        tabBarController.tabBar.standardAppearance = appearance
-        tabBarController.tabBar.scrollEdgeAppearance = appearance
-        
-        tabBarController.modalPresentationStyle = .fullScreen
-        self.present(tabBarController, animated: true, completion: nil)
+        let tabbarVC = MainTabBarController()
+        tabbarVC.modalPresentationStyle = .fullScreen
+        present(tabbarVC, animated: true)
     }
     
     private func showSplashScreen() {
-        let splash = SplashViewController()
+        let splash = StartVC()
         
         addChild(splash)
         splash.view.frame = view.bounds
