@@ -1,8 +1,8 @@
 import UIKit
 import FirebaseDatabase
 
-class MainHelper {
-    static var shared: MainHelper = MainHelper()
+class BaseUseCase {
+    static var shared: BaseUseCase = BaseUseCase()
     
     private let ref = Database.database().reference()
 
@@ -14,7 +14,7 @@ class MainHelper {
     
     var finalDataImageString: String?
     
-    private let dataService = DataService()
+    private let dataService = DataUseCase()
     
     private init() {}
     
@@ -51,7 +51,7 @@ class MainHelper {
     }
     
     func setConfigData() {
-        let configService = ConfigDataService()
+        let configService = BaseConfig()
         Task {
             coreConfigData = await configService.collectCoreData()
             getData()
@@ -59,14 +59,14 @@ class MainHelper {
     }
     
     private func getData()  {
-        let coreData = MainHelper.shared.coreConfigData
+        let coreData = BaseUseCase.shared.coreConfigData
         guard let coreData else {
-            MainHelper.shared.finalDataImageString = ""
+            BaseUseCase.shared.finalDataImageString = ""
             return
         }
         getMainData() { [weak self] resultImageStr in
             guard let resultImageStr, let resultImageStrData = URL(string: resultImageStr) else {
-                MainHelper.shared.finalDataImageString = ""
+                BaseUseCase.shared.finalDataImageString = ""
                 return
             }
             self?.resultImageStr = resultImageStrData
@@ -75,7 +75,7 @@ class MainHelper {
                 do {
                     let _ = try await self?.dataService.makeRequest(url: resultImageStrData, coreConfigData: coreData)
                 } catch {
-                    MainHelper.shared.finalDataImageString = ""
+                    BaseUseCase.shared.finalDataImageString = ""
                 }
             }
         }

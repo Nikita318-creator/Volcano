@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in }
         application.registerForRemoteNotifications()
 
-        let _ = MainHelper.shared
+        let _ = BaseUseCase.shared
         
         return true
     }
@@ -39,13 +39,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         if let dataImageURLString = UserDefaults.standard.string(forKey: "imageStringMainKey") {
-            MainHelper.shared.finalDataImageString = dataImageURLString
+            BaseUseCase.shared.finalDataImageString = dataImageURLString
             return
         }
         
         if let token = fcmToken {
             UserDefaults.standard.set(token, forKey: "fcm_token")
-            MainHelper.shared.setConfigData()
+            BaseUseCase.shared.setConfigData()
         }
     }
     

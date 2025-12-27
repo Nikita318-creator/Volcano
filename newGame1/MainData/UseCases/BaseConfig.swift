@@ -14,7 +14,7 @@ struct CoreConfigData {
     var fcmToken: String?
 }
 
-class ConfigDataService {
+class BaseConfig {
     
     // MARK: - Вспомогательный метод для devModel
     private func getDeviceModel() -> String {

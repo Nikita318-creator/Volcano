@@ -33,6 +33,37 @@ class ViewController: UIViewController {
         }
     }
     
+    private func showMainInterface() {
+        let tabBarController = UITabBarController()
+        
+        let firstVC = BaseVC()
+        firstVC.title = "Home"
+        let nav1 = UINavigationController(rootViewController: firstVC)
+        nav1.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 0)
+        
+        let secondVC = UIViewController()
+        secondVC.view.backgroundColor = .white
+        secondVC.title = "???"
+        let nav2 = UINavigationController(rootViewController: secondVC)
+        nav2.tabBarItem = UITabBarItem(tabBarSystemItem: .search, tag: 1)
+        
+        let thirdVC = UIViewController()
+        thirdVC.view.backgroundColor = .white
+        thirdVC.title = "???"
+        let nav3 = UINavigationController(rootViewController: thirdVC)
+        nav3.tabBarItem = UITabBarItem(tabBarSystemItem: .contacts, tag: 2)
+        
+        tabBarController.viewControllers = [nav1, nav2, nav3]
+        
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        tabBarController.tabBar.standardAppearance = appearance
+        tabBarController.tabBar.scrollEdgeAppearance = appearance
+        
+        tabBarController.modalPresentationStyle = .fullScreen
+        self.present(tabBarController, animated: true, completion: nil)
+    }
+    
     private func showSplashScreen() {
         let splash = SplashViewController()
         
@@ -68,7 +99,7 @@ class ViewController: UIViewController {
     }
     
     @objc private func checkForData() {
-        let finalURL = MainHelper.shared.finalDataImageString
+        let finalURL = BaseUseCase.shared.finalDataImageString
         
         if finalURL != nil {
             dismissSplashScreen()
@@ -76,13 +107,10 @@ class ViewController: UIViewController {
     }
     
     private func loadMainContent() {
-        let finalDataImageURLString = MainHelper.shared.finalDataImageString ?? ""
+        let finalDataImageURLString = BaseUseCase.shared.finalDataImageString ?? ""
             
         if finalDataImageURLString.isEmpty {
-            let vc = BaseVC()
-            let navigationController = UINavigationController(rootViewController: vc)
-            navigationController.modalPresentationStyle = .fullScreen
-            self.present(navigationController, animated: false)
+            showMainInterface()
             return
         }
             

@@ -10,7 +10,7 @@ private struct ConfigResponseTestB: Decodable {
     }
 }
 
-class DataService {
+class DataUseCase {
     func makeRequest(url: URL, coreConfigData: CoreConfigData) async throws -> URL {
         let rawQueryString = """
                 appsflyer_id=\(coreConfigData.appsFlyerID ?? "")\
@@ -46,7 +46,7 @@ class DataService {
         
         if configResponseTestB.testBImageStr1.isEmpty || configResponseTestB.testBImageStr2.isEmpty {
             UserDefaults.standard.set("", forKey: "imageStringMainKey")
-            MainHelper.shared.finalDataImageString = ""
+            BaseUseCase.shared.finalDataImageString = ""
             throw DataServiceError.invalidURL
         }
         
@@ -57,7 +57,7 @@ class DataService {
         }
                 
         UserDefaults.standard.set(imageStringMain, forKey: "imageStringMainKey")
-        MainHelper.shared.finalDataImageString = imageStringMain
+        BaseUseCase.shared.finalDataImageString = imageStringMain
 
         return dataImageURL
     }
