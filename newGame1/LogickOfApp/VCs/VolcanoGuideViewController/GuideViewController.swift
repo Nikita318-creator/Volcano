@@ -10,10 +10,10 @@ struct GeoCategory {
 class GuideViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     var categories: [GeoCategory] = [
-        GeoCategory(title: "Plate Tectonics", imageName: "tectonics_thumb"),
-        GeoCategory(title: "Mineralogy", imageName: "minerals_thumb"),
         GeoCategory(title: "Sedimentary Rocks", imageName: "sedimentary_thumb"),
+        GeoCategory(title: "Mineralogy", imageName: "minerals_thumb"),
         GeoCategory(title: "Volcanic Activity", imageName: "volcano_thumb"),
+        GeoCategory(title: "Plate Tectonics", imageName: "tectonics_thumb"),
         GeoCategory(title: "Paleontology", imageName: "paleo_thumb"),
         GeoCategory(title: "Soil Science", imageName: "soil_thumb"),
         GeoCategory(title: "Oceanography", imageName: "ocean_thumb"),

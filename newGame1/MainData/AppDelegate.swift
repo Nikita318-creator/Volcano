@@ -10,8 +10,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
         
-        AppsFlyerLib.shared().appsFlyerDevKey = Const.appsFlyerDevKey
-        AppsFlyerLib.shared().appleAppID = Const.appleAppID
+        AppsFlyerLib.shared().appsFlyerDevKey = "P8Cmc5f5JjkNjQ3haoGbWS"
+        AppsFlyerLib.shared().appleAppID = "" // test111
         AppsFlyerLib.shared().start()
         
         Messaging.messaging().delegate = self

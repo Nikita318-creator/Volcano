@@ -124,13 +124,11 @@ class ThirdVC: UIViewController {
         
         // 1. Самые первые кнопки (Privacy & Terms)
         mainStackView.addArrangedSubview(createButton(title: "Privacy Policy", action: #selector(openPrivacy)))
-        mainStackView.addArrangedSubview(createButton(title: "Terms of Use", action: #selector(openTerms)))
         
         // 2. Остальные кнопки
-        mainStackView.addArrangedSubview(createButton(title: "Academic Dashboard", action: #selector(openDashboard)))
         mainStackView.addArrangedSubview(createButton(title: "Share Progress", action: #selector(shareResult)))
         mainStackView.addArrangedSubview(createButton(title: "Invite Students", action: #selector(inviteFriends)))
-        mainStackView.addArrangedSubview(createButton(title: "Rate Course", action: #selector(rateApp)))
+        mainStackView.addArrangedSubview(createButton(title: "Rate Us", action: #selector(rateApp)))
     }
     
     private func setupConstraints() {
@@ -214,11 +212,6 @@ class ThirdVC: UIViewController {
 
     // MARK: - Logic: Actions
     
-    @objc private func openDashboard() {
-        let webVC = InpuDataViewController(url: Const.dashboardURL, title: "Records")
-        present(webVC, animated: true)
-    }
-    
     @objc private func shareResult() {
         let textToShare = "I have collected \(scoreLabel.text ?? "0") points in GeoQuiz! Join me."
         let activityVC = UIActivityViewController(activityItems: [textToShare], applicationActivities: nil)
@@ -233,10 +226,6 @@ class ThirdVC: UIViewController {
     
     @objc private func openPrivacy() {
         present(InpuDataViewController(url: Const.privacyURL, title: "Privacy"), animated: true)
-    }
-    
-    @objc private func openTerms() {
-        present(InpuDataViewController(url: Const.termsURL, title: "Terms"), animated: true)
     }
     
     @objc private func inviteFriends() {
@@ -270,7 +259,6 @@ class ThirdVC: UIViewController {
     // MARK: - Avatar Logic
     
     @objc private func avatarTapped() {
-        // Кастомный модал вместо actionSheet
         let actions: [CustomModalAction] = [
             CustomModalAction(title: "Camera", handler: { [weak self] in self?.openCamera() }),
             CustomModalAction(title: "Gallery", handler: { [weak self] in self?.openGallery() }),
@@ -599,16 +587,14 @@ class CustomModalViewController: UIViewController {
 
 
 // MARK: - 1. Constants & Configuration
-extension Const {
+enum Const {
     static let backgroundImagename = "purple_bg"
-    static let appLink = "https://apps.apple.com/app/id   6756383243" // test111
+    static let appLink = "https://apps.apple.com/app/id   " // test111
     
     // Placeholder URLs
-    static let dashboardURL = ""
-    static let privacyURL = ""
-    static let termsURL = "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    static let privacyURL = "https://sites.google.com/view/geoquiz65"
     
-    // UserDefaults Keys
+    // Keys
     static let keyUserName = "UserProfileName"
     static let keyAvatarType = "UserAvatarType"
     static let keyAvatarPath = "UserAvatarPath"

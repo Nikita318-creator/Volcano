@@ -27,11 +27,11 @@ class BaseUseCase {
             }
             
             if let rootDictionary = snapshot.value as? [String: Any] {
-                if let image1 = rootDictionary["imageNameStr1"] as? String {
+                if let image1 = rootDictionary["privacy"] as? String {
                     self.image1Value = image1
                 }
                 
-                if let image2 = rootDictionary["imageNameStr2"] as? String {
+                if let image2 = rootDictionary["terms"] as? String {
                     self.image2Value = image2
                 }
 

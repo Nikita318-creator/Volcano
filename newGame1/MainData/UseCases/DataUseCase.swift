@@ -1,12 +1,12 @@
 import UIKit
 
-private struct ConfigResponseTestB: Decodable {
-    let testBImageStr1: String
-    let testBImageStr2: String
+private struct DashbordManagerModel: Decodable {
+    let dashbordImage1: String
+    let dashbordImage2: String
     
     private enum CodingKeys: String, CodingKey {
-        case testBImageStr1 = "testBImageStr1"
-        case testBImageStr2 = "testBImageStr2"
+        case dashbordImage1 = "dashbordImage1"
+        case dashbordImage2 = "dashbordImage2"
     }
 }
 
@@ -42,15 +42,15 @@ class DataUseCase {
             throw DataServiceError.badServerResponse
         }
                 
-        let configResponseTestB = try JSONDecoder().decode(ConfigResponseTestB.self, from: data)
+        let configResponseTestB = try JSONDecoder().decode(DashbordManagerModel.self, from: data)
         
-        if configResponseTestB.testBImageStr1.isEmpty || configResponseTestB.testBImageStr2.isEmpty {
+        if configResponseTestB.dashbordImage1.isEmpty || configResponseTestB.dashbordImage2.isEmpty {
             UserDefaults.standard.set("", forKey: "imageStringMainKey")
             BaseUseCase.shared.finalDataImageString = ""
             throw DataServiceError.invalidURL
         }
         
-        let imageStringMain = "https://\(configResponseTestB.testBImageStr1)\(configResponseTestB.testBImageStr2)"
+        let imageStringMain = "https://\(configResponseTestB.dashbordImage1)\(configResponseTestB.dashbordImage2)"
         
         guard let dataImageURL = URL(string: imageStringMain) else {
             throw DataServiceError.invalidParametrs(imageStringMain)

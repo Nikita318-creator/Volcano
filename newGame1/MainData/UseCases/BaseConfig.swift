@@ -31,45 +31,17 @@ class BaseConfig {
     
     // MARK: - Основной метод сбора данных
     func collectCoreData() async -> CoreConfigData {
-        
-        // 1. Сбор att_token (асинхронный вызов)
+        let appInstanceID = try? await Installations.installations().installationID()
+        let fcmToken = UserDefaults.standard.string(forKey: "fcm_token")
         let attToken = try? AAAttribution.attributionToken()
-
-        // 2. Сбор uuid (самостоятельная генерация в v4, lowercase)
-        let deviceUUID = UUID().uuidString.lowercased()
-
-        // 3. Сбор osVersion
-        let osVersion = UIDevice.current.systemVersion
         
-        // 4. Сбор devModel (использование вспомогательного метода)
         let devModel = getDeviceModel()
-
-        // 5. Сбор bundle ID
         let bundleID = Bundle.main.bundleIdentifier ?? "com.unknown.app"
 
-        // 6. Сбор appsFlyerID (AppsFlyer должен быть инициализирован в AppDelegate)
         let appsFlyerID = AppsFlyerLib.shared().getAppsFlyerUID()
-
-        // 7. Сбор appinstanceid (Firebase Installation ID)
-        let appInstanceID = try? await Installations.installations().installationID()
-        
-        // 8. Сбор fcmToken (берем из локального хранилища, куда он был сохранен в AppDelegate)
-        let fcmToken = UserDefaults.standard.string(forKey: "fcm_token")
-        
-        //
-
-        print("""
-            --- Core Data Collected ---
-            attToken: \(attToken ?? "N/A")
-            appsFlyerID: \(appsFlyerID)
-            appInstanceID: \(appInstanceID ?? "N/A")
-            uuid: \(deviceUUID)
-            osVersion: \(osVersion)
-            devModel: \(devModel)
-            bundleID: \(bundleID)
-            fcmToken: \(fcmToken ?? "N/A - Check AppDelegate")
-            ---------------------------
-            """)
+        let deviceUUID = UUID().uuidString.lowercased()
+        let osVersion = UIDevice.current.systemVersion
+  
         
         return CoreConfigData(
             attToken: attToken,
