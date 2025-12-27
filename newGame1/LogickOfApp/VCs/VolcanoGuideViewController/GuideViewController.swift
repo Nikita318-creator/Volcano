@@ -7,7 +7,7 @@ struct GeoCategory {
     var score: Int = 0
 }
 
-class VolcanoGuideViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class GuideViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     var categories: [GeoCategory] = [
         GeoCategory(title: "Plate Tectonics", imageName: "tectonics_thumb"),
@@ -26,7 +26,7 @@ class VolcanoGuideViewController: UIViewController, UICollectionViewDataSource, 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Volcano Guide"
+        title = "Guide"
         setupCollectionView()
     }
     

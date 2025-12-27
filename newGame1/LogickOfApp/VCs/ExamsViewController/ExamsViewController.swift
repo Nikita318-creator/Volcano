@@ -24,13 +24,25 @@ class ExamsViewController: UIViewController, UITableViewDataSource, UITableViewD
         setupTableView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Перезагружаем таблицу, чтобы обновить баллы при возврате с теста
+        tableView.reloadData()
+    }
+    
     private func setupTableView() {
         tableView.frame = view.bounds
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.rowHeight = 80
+        tableView.rowHeight = 90 // Чуть увеличил для красоты
+        tableView.separatorStyle = .none // Убираем стандартные полоски
+        tableView.backgroundColor = .systemBackground
         tableView.register(ExamCell.self, forCellReuseIdentifier: "ExamCell")
         view.addSubview(tableView)
+        
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -39,13 +51,31 @@ class ExamsViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ExamCell", for: indexPath) as! ExamCell
-        cell.titleLabel.text = categories[indexPath.row].title
-        cell.scoreLabel.text = "[0/100]" // test111 из юзер дефолтс подтянем
-        cell.imgView.image = UIImage(named: categories[indexPath.row].imageName)
+        let category = categories[indexPath.row]
+        
+        cell.titleLabel.text = category.title
+        
+        // Подтягиваем результат из UserDefaults
+        let key = "Score_\(category.title)"
+        let savedScore = UserDefaults.standard.integer(forKey: key)
+        
+        // Выводим баллы [X/100]
+        cell.scoreLabel.text = "\(savedScore)/100"
+        
+        // Красим баллы в оранжевый, если есть прогресс
+        cell.scoreLabel.textColor = savedScore > 0 ? .systemOrange : .systemGray
+        
+        cell.imgView.image = UIImage(named: category.imageName)
+        
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        let category = categories[indexPath.row]
+        let quizVC = QuizProcessViewController()
+        quizVC.categoryData = category
+        quizVC.modalPresentationStyle = .fullScreen
+        present(quizVC, animated: true)
     }
 }

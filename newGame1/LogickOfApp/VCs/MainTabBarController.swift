@@ -9,7 +9,7 @@ class MainTabBarController: UITabBarController {
     }
     
     private func setupTabs() {
-        let mainVC = VolcanoGuideViewController()
+        let mainVC = GuideViewController()
         let nav1 = UINavigationController(rootViewController: mainVC)
         nav1.tabBarItem = UITabBarItem(title: "Guide", image: UIImage(systemName: "book.fill"), tag: 0)
         
