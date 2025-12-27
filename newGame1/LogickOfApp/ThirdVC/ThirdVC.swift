@@ -77,23 +77,20 @@ class GenericWebViewController: UIViewController {
     }
 }
 
-// MARK: - 4. Main Profile Screen
 class ThirdVC: UIViewController {
 
-    // Logic Variables
     private let imagePicker = UIImagePickerController()
     private var videoPlayer: AVPlayer?
     private var playerLayer: AVPlayerLayer?
 
     // MARK: - UI Components
     
-    // Avatar Container
     private lazy var avatarContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = .white.withAlphaComponent(0.2)
-        view.layer.borderColor = UIColor.white.cgColor
-        view.layer.borderWidth = 2
-        view.layer.cornerRadius = 60 // Size 120/2
+        view.backgroundColor = .secondarySystemBackground
+        view.layer.borderColor = UIColor.systemOrange.cgColor
+        view.layer.borderWidth = 3
+        view.layer.cornerRadius = 60 
         view.clipsToBounds = true
         view.isUserInteractionEnabled = true
         return view
@@ -103,7 +100,7 @@ class ThirdVC: UIViewController {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.image = UIImage(systemName: "person.circle.fill") // Placeholder
-        iv.tintColor = .white
+        iv.tintColor = .systemGray2 // Смена стиля
         return iv
     }()
     
@@ -112,11 +109,11 @@ class ThirdVC: UIViewController {
         let tf = UITextField()
         tf.placeholder = "Enter your name"
         tf.textAlignment = .center
-        tf.textColor = .white
+        tf.textColor = .label // Смена стиля
         tf.font = .systemFont(ofSize: 22, weight: .bold)
         tf.attributedPlaceholder = NSAttributedString(
             string: "Enter your name",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.white.withAlphaComponent(0.6)]
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.systemGray] // Смена стиля
         )
         tf.returnKeyType = .done
         tf.delegate = self
@@ -127,7 +124,7 @@ class ThirdVC: UIViewController {
     private lazy var scoreLabel: UILabel = {
         let label = UILabel()
         label.text = "" // Hardcoded for now
-        label.textColor = .systemYellow
+        label.textColor = .systemOrange // Смена стиля
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.textAlignment = .center
         return label
@@ -181,7 +178,7 @@ class ThirdVC: UIViewController {
         let backgroundImageView = UIImageView(frame: view.bounds)
         // Ensure you have an image set in Const or handle nil gracefully
         backgroundImageView.image = UIImage(named: Const.backgroundImagename)
-        backgroundImageView.backgroundColor = .systemIndigo // Fallback color
+        backgroundImageView.backgroundColor = .systemBackground // Смена стиля
         backgroundImageView.contentMode = .scaleAspectFill
         view.addSubview(backgroundImageView)
         view.sendSubviewToBack(backgroundImageView)
@@ -197,10 +194,10 @@ class ThirdVC: UIViewController {
         view.addSubview(footerStackView)
         
         // Add Main Buttons
-        mainStackView.addArrangedSubview(createButton(title: "Records Dashboard", action: #selector(openDashboard)))
-        mainStackView.addArrangedSubview(createButton(title: "Share Result", action: #selector(shareResult)))
-        mainStackView.addArrangedSubview(createButton(title: "Invite Friends", action: #selector(inviteFriends)))
-        mainStackView.addArrangedSubview(createButton(title: "Rate Us", action: #selector(rateApp)))
+        mainStackView.addArrangedSubview(createButton(title: "Academic Dashboard", action: #selector(openDashboard)))
+        mainStackView.addArrangedSubview(createButton(title: "Share Progress", action: #selector(shareResult)))
+        mainStackView.addArrangedSubview(createButton(title: "Invite Students", action: #selector(inviteFriends)))
+        mainStackView.addArrangedSubview(createButton(title: "Rate Course", action: #selector(rateApp)))
         
         // Add Footer Buttons
         footerStackView.addArrangedSubview(createFooterButton(title: "Privacy Policy", action: #selector(openPrivacy)))
@@ -250,13 +247,13 @@ class ThirdVC: UIViewController {
     
     private func createButton(title: String, action: Selector) -> UIButton {
         let btn = UIButton(type: .system)
-        btn.setTitle(title, for: .normal)
-        btn.setTitleColor(.white, for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        btn.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.6)
+        btn.setTitle(title.uppercased(), for: .normal)
+        btn.setTitleColor(.label, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 16, weight: .heavy)
+        btn.backgroundColor = .secondarySystemBackground
         btn.layer.cornerRadius = 12
-        btn.layer.borderWidth = 1
-        btn.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+        btn.layer.borderWidth = 1.5
+        btn.layer.borderColor = UIColor.systemGray5.cgColor
         btn.addTarget(self, action: action, for: .touchUpInside)
         btn.snp.makeConstraints { $0.height.equalTo(55) }
         return btn
@@ -265,7 +262,7 @@ class ThirdVC: UIViewController {
     private func createFooterButton(title: String, action: Selector) -> UIButton {
         let btn = UIButton(type: .system)
         btn.setTitle(title, for: .normal)
-        btn.setTitleColor(.white.withAlphaComponent(0.7), for: .normal)
+        btn.setTitleColor(.systemGray, for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 12)
         btn.addTarget(self, action: action, for: .touchUpInside)
         return btn
@@ -338,7 +335,7 @@ class ThirdVC: UIViewController {
             } else if schema.contains("whatsapp://") {
                 urlString = "whatsapp://"
             } else if schema.contains("instagram://") {
-                urlString = "instagram://app" // Иногда требуется для Instagram, чтобы просто открыть приложение
+                urlString = "instagram://" // Иногда требуется для Instagram, чтобы просто открыть приложение
             } else {
                 // Для mailto: и других сложных случаев оставляем как есть.
                 urlString = schema

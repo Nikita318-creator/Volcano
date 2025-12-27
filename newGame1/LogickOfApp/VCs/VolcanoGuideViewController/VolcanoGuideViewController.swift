@@ -65,6 +65,10 @@ class VolcanoGuideViewController: UIViewController, UICollectionViewDataSource, 
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Selected category: \(categories[indexPath.item].title)")
+        let category = categories[indexPath.item]
+        let detailVC = CategoryDetailViewController()
+        detailVC.categoryData = category
+        detailVC.modalPresentationStyle = .fullScreen
+        present(detailVC, animated: true)
     }
 }
