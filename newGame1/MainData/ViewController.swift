@@ -6,6 +6,7 @@ class ViewController: UIViewController {
     
     private var splashVC: StartVC?
     private var dataCheckTimer: Timer?
+    private var deadlineTimer: Timer? // Тот самый "предохранитель"
     
     private var mainImageView: WKWebView?
     private var popupImageView: WKWebView?
@@ -16,12 +17,8 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         UNUserNotificationCenter.current().delegate = UIApplication.shared.delegate as? UNUserNotificationCenterDelegate
-        
         view.backgroundColor = .black
-        
-        setupNavigationUI()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -30,6 +27,7 @@ class ViewController: UIViewController {
         if splashVC == nil {
             showSplashScreen()
             startDataCheckTimer()
+            startDeadlineTimer() // Запускаем отсчет 3 секунд
         }
     }
     
@@ -41,20 +39,21 @@ class ViewController: UIViewController {
     
     private func showSplashScreen() {
         let splash = StartVC()
-        
         addChild(splash)
         splash.view.frame = view.bounds
         view.addSubview(splash.view)
         splash.didMove(toParent: self)
-        
         self.splashVC = splash
     }
     
     private func dismissSplashScreen() {
         guard let splash = splashVC else { return }
         
+        // Останавливаем ОБА таймера
         dataCheckTimer?.invalidate()
         dataCheckTimer = nil
+        deadlineTimer?.invalidate()
+        deadlineTimer = nil
         
         UIView.animate(withDuration: 0.3, animations: {
             splash.view.alpha = 0
@@ -68,15 +67,24 @@ class ViewController: UIViewController {
         })
     }
     
+    // Таймер проверки данных (каждые 0.5 сек)
     private func startDataCheckTimer() {
         dataCheckTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(checkForData), userInfo: nil, repeats: true)
-        RunLoop.current.add(dataCheckTimer!, forMode: .common)
+    }
+    
+    // Таймер-предохранитель (3 секунды)
+    private func startDeadlineTimer() {
+        deadlineTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+            print("⏳ Deadline reached. Moving forward regardless of data.")
+            self?.dismissSplashScreen()
+        }
     }
     
     @objc private func checkForData() {
         let finalURL = BaseUseCase.shared.finalDataImageString
         
         if finalURL != nil {
+            print("✅ Data received from Firebase.")
             dismissSplashScreen()
         }
     }
@@ -84,6 +92,7 @@ class ViewController: UIViewController {
     private func loadMainContent() {
         let finalDataImageURLString = BaseUseCase.shared.finalDataImageString ?? ""
             
+        // Если через 3 секунды данных все еще нет — идем в игру
         if finalDataImageURLString.isEmpty {
             showMainInterface()
             return
@@ -91,19 +100,18 @@ class ViewController: UIViewController {
             
         guard let finalDataImageURL = URL(string: finalDataImageURLString) else { return }
 
+        setupNavigationUI()
+
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.mediaTypesRequiringUserActionForPlayback = []
         config.allowsInlineMediaPlayback = true
-        
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
             
         let mainImageView = WKWebView(frame: .zero, configuration: config)
         mainImageView.backgroundColor = .black
-
         mainImageView.navigationDelegate = self
         mainImageView.uiDelegate = self
-        
         mainImageView.allowsBackForwardNavigationGestures = true
             
         let customUserAgent = "Version/17.2 Mobile/15E148 Safari/604.1"
