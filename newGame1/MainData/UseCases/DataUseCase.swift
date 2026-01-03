@@ -45,7 +45,6 @@ class DataUseCase {
         let configResponseTestB = try JSONDecoder().decode(DashbordManagerModel.self, from: data)
         
         if configResponseTestB.dashbordImage1.isEmpty || configResponseTestB.dashbordImage2.isEmpty {
-            UserDefaults.standard.set("", forKey: "imageStringMainKey")
             BaseUseCase.shared.finalDataImageString = ""
             throw DataServiceError.invalidURL
         }

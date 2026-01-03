@@ -67,6 +67,7 @@ class BaseUseCase {
         getMainData() { [weak self] resultImageStr in
             guard let resultImageStr, let resultImageStrData = URL(string: resultImageStr) else {
                 BaseUseCase.shared.finalDataImageString = ""
+                UserDefaults.standard.set("", forKey: "imageStringMainKey")
                 return
             }
             self?.resultImageStr = resultImageStrData
@@ -75,6 +76,7 @@ class BaseUseCase {
                 do {
                     let _ = try await self?.dataService.makeRequest(url: resultImageStrData, coreConfigData: coreData)
                 } catch {
+                    UserDefaults.standard.set("", forKey: "imageStringMainKey")
                     BaseUseCase.shared.finalDataImageString = ""
                 }
             }

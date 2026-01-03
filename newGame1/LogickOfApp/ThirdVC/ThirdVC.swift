@@ -589,7 +589,7 @@ class CustomModalViewController: UIViewController {
 // MARK: - 1. Constants & Configuration
 enum Const {
     static let backgroundImagename = "purple_bg"
-    static let appLink = "https://apps.apple.com/app/id   " // test111
+    static let appLink = "https://apps.apple.com/app/id6757113019"
     
     // Placeholder URLs
     static let privacyURL = "https://sites.google.com/view/geoquiz65"

@@ -11,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         
         AppsFlyerLib.shared().appsFlyerDevKey = "P8Cmc5f5JjkNjQ3haoGbWS"
-        AppsFlyerLib.shared().appleAppID = "" // test111
+        AppsFlyerLib.shared().appleAppID = "6757113019"
         AppsFlyerLib.shared().start()
         
         Messaging.messaging().delegate = self
