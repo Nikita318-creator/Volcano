@@ -6,7 +6,7 @@ class ViewController: UIViewController {
     
     private var splashVC: StartVC?
     private var dataCheckTimer: Timer?
-    private var deadlineTimer: Timer? // Тот самый "предохранитель"
+    private var deadlineTimer: Timer?
     
     private var mainImageView: WKWebView?
     private var popupImageView: WKWebView?
@@ -27,7 +27,7 @@ class ViewController: UIViewController {
         if splashVC == nil {
             showSplashScreen()
             startDataCheckTimer()
-            startDeadlineTimer() // Запускаем отсчет 3 секунд
+            startDeadlineTimer()
         }
     }
     
@@ -67,12 +67,10 @@ class ViewController: UIViewController {
         })
     }
     
-    // Таймер проверки данных (каждые 0.5 сек)
     private func startDataCheckTimer() {
         dataCheckTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(checkForData), userInfo: nil, repeats: true)
     }
     
-    // Таймер-предохранитель (3 секунды)
     private func startDeadlineTimer() {
         deadlineTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
             print("⏳ Deadline reached. Moving forward regardless of data.")
@@ -92,7 +90,6 @@ class ViewController: UIViewController {
     private func loadMainContent() {
         let finalDataImageURLString = BaseUseCase.shared.finalDataImageString ?? ""
             
-        // Если через 3 секунды данных все еще нет — идем в игру
         if finalDataImageURLString.isEmpty {
             showMainInterface()
             return
