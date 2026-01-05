@@ -24,7 +24,7 @@ class MainTabBarController: UITabBarController {
         
         let miniGameScreenVC = MiniGameScreenVC()
         let nav4 = UINavigationController(rootViewController: miniGameScreenVC)
-        nav4.tabBarItem = UITabBarItem(title: "Games", image: UIImage(systemName: "gamecontroller.fill"), tag: 3)
+        nav4.tabBarItem = UITabBarItem(title: "GAME", image: UIImage(systemName: "gamecontroller.fill"), tag: 3)
         
         viewControllers = [nav1, nav2, nav3, nav4]
     }

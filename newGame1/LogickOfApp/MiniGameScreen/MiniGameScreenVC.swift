@@ -39,19 +39,22 @@ class MiniGameScreenVC: UIViewController {
     }
     
     // MARK: - UI Components
-    private let backgroundGradient: CAGradientLayer = {
-        let gradient = CAGradientLayer()
-        gradient.colors = [
-            UIColor(red: 0.05, green: 0.08, blue: 0.15, alpha: 1).cgColor,
-            UIColor(red: 0.08, green: 0.12, blue: 0.20, alpha: 1).cgColor
-        ]
-        gradient.locations = [0, 1]
-        return gradient
+    private let backgroundImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "miniGameBG")
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
+
+    private let backgroundDimView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+        return view
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "GEOLOGICAL ANALYZER"
+        label.text = "VOLCANO GAME"
         label.font = .systemFont(ofSize: 18, weight: .heavy)
         label.textColor = UIColor(red: 0.4, green: 0.8, blue: 1, alpha: 1)
         label.textAlignment = .center
@@ -138,7 +141,6 @@ class MiniGameScreenVC: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        backgroundGradient.frame = view.bounds
     }
     
     private func showRulesIfNeeded() {
@@ -160,11 +162,20 @@ class MiniGameScreenVC: UIViewController {
     
     // MARK: - UI Setup
     private func setupUI() {
-        view.layer.insertSublayer(backgroundGradient, at: 0)
+        view.addSubview(backgroundImageView)
+        backgroundImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        // 2. Добавляем затемнение поверх картинки
+        view.addSubview(backgroundDimView)
+        backgroundDimView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         
         view.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(20)
+            make.top.equalTo(view.safeAreaLayoutGuide)
             make.centerX.equalToSuperview()
         }
         
@@ -290,7 +301,7 @@ class MiniGameScreenVC: UIViewController {
         container.clipsToBounds = true
         
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.tag = 999
         container.addSubview(imageView)
         imageView.snp.makeConstraints { make in make.edges.equalToSuperview() }
