@@ -60,8 +60,16 @@ class MiniGameScreenVC: UIViewController {
     
     private let infoButton: UIButton = {
         let button = UIButton(type: .system)
-        let config = UIImage.SymbolConfiguration(pointSize: 24, weight: .bold)
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .bold)
         button.setImage(UIImage(systemName: "info.circle.fill", withConfiguration: config), for: .normal)
+        button.tintColor = UIColor(red: 0.3, green: 0.9, blue: 1, alpha: 1)
+        return button
+    }()
+    
+    private let resetBoardButton: UIButton = {
+        let button = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .bold)
+        button.setImage(UIImage(systemName: "arrow.2.circlepath", withConfiguration: config), for: .normal)
         button.tintColor = UIColor(red: 0.3, green: 0.9, blue: 1, alpha: 1)
         return button
     }()
@@ -167,6 +175,13 @@ class MiniGameScreenVC: UIViewController {
             make.right.equalToSuperview().inset(24)
         }
         
+        view.addSubview(resetBoardButton)
+        resetBoardButton.addTarget(self, action: #selector(handleReset), for: .touchUpInside)
+        resetBoardButton.snp.makeConstraints { make in
+            make.centerY.equalTo(titleLabel)
+            make.left.equalToSuperview().inset(24)
+        }
+        
         view.addSubview(scoreContainerView)
         scoreContainerView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(16)
@@ -205,6 +220,18 @@ class MiniGameScreenVC: UIViewController {
         }
     }
     
+    @objc private func handleReset() {
+        guard !isProcessing else { return }
+        score = 0
+        comboMultiplier = 1
+        generateInitialGrid()
+        updateAllCells(animated: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.checkAndProcessMatches()
+        }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+    
     // MARK: - Grid Logic
     private func generateInitialGrid() {
         grid = []
@@ -226,14 +253,10 @@ class MiniGameScreenVC: UIViewController {
 
     private func checkPotentialMatch(imgName: String, row: Int, col: Int, currentLabels: [Tile]) -> Bool {
         if col >= 2 {
-            if currentLabels[col-1].imageName == imgName && currentLabels[col-2].imageName == imgName {
-                return true
-            }
+            if currentLabels[col-1].imageName == imgName && currentLabels[col-2].imageName == imgName { return true }
         }
         if row >= 2 {
-            if grid[row-1][col].imageName == imgName && grid[row-2][col].imageName == imgName {
-                return true
-            }
+            if grid[row-1][col].imageName == imgName && grid[row-2][col].imageName == imgName { return true }
         }
         return false
     }
@@ -264,15 +287,13 @@ class MiniGameScreenVC: UIViewController {
         container.layer.cornerRadius = 10
         container.layer.borderWidth = 1
         container.layer.borderColor = UIColor(white: 0.3, alpha: 0.3).cgColor
+        container.clipsToBounds = true
         
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.tag = 999
-        
         container.addSubview(imageView)
-        imageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(6)
-        }
+        imageView.snp.makeConstraints { make in make.edges.equalToSuperview() }
         return container
     }
     
@@ -287,23 +308,18 @@ class MiniGameScreenVC: UIViewController {
     private func updateCell(at position: GridPosition, animated: Bool) {
         let cellView = cellViews[position.row][position.col]
         let tile = grid[position.row][position.col]
-        
         if let imageView = cellView.viewWithTag(999) as? UIImageView {
             let image = UIImage(named: tile.imageName)
             if animated {
-                UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
-                    imageView.image = image
-                })
+                UIView.transition(with: imageView, duration: 0.2, options: .transitionCrossDissolve, animations: { imageView.image = image })
             } else {
                 imageView.image = image
             }
         }
     }
     
-    // MARK: - Interaction
     @objc private func cellTapped(_ gesture: UITapGestureRecognizer) {
         guard !isProcessing, let view = gesture.view else { return }
-        
         let row = view.tag / 100
         let col = view.tag % 100
         let position = GridPosition(row: row, col: col)
@@ -332,7 +348,6 @@ class MiniGameScreenVC: UIViewController {
         let cellView = cellViews[position.row][position.col]
         cellView.layer.borderColor = UIColor(red: 0.3, green: 0.9, blue: 1, alpha: 1).cgColor
         cellView.backgroundColor = UIColor(red: 0.2, green: 0.4, blue: 0.6, alpha: 0.5)
-        
         UIView.animate(withDuration: 0.6, delay: 0, options: [.autoreverse, .repeat], animations: {
             cellView.transform = CGAffineTransform(scaleX: 0.92, y: 0.92)
         })
@@ -350,10 +365,8 @@ class MiniGameScreenVC: UIViewController {
         return abs(p1.row - p2.row) + abs(p1.col - p2.col) == 1
     }
     
-    // MARK: - Match Processing Logic
     private func performSwap(from: GridPosition, to: GridPosition) {
         isProcessing = true
-        
         let tempTile = grid[from.row][from.col]
         grid[from.row][from.col] = grid[to.row][to.col]
         grid[to.row][to.col] = tempTile
@@ -364,10 +377,7 @@ class MiniGameScreenVC: UIViewController {
                 let tempBack = self.grid[from.row][from.col]
                 self.grid[from.row][from.col] = self.grid[to.row][to.col]
                 self.grid[to.row][to.col] = tempBack
-                
-                self.animateSwap(from: from, to: to) {
-                    self.isProcessing = false
-                }
+                self.animateSwap(from: from, to: to) { self.isProcessing = false }
                 UINotificationFeedbackGenerator().notificationOccurred(.error)
             } else {
                 self.comboMultiplier = 1
@@ -380,7 +390,6 @@ class MiniGameScreenVC: UIViewController {
     private func animateSwap(from: GridPosition, to: GridPosition, completion: @escaping () -> Void) {
         let fromView = cellViews[from.row][from.col]
         let toView = cellViews[to.row][to.col]
-        
         let targetFromCenter = toView.center
         let targetToCenter = fromView.center
         
@@ -398,31 +407,23 @@ class MiniGameScreenVC: UIViewController {
 
     private func findAllMatches() -> Set<GridPosition> {
         var matches = Set<GridPosition>()
-        
-        // Horizontal
         for row in 0..<rows {
             var col = 0
             while col < cols {
                 let name = grid[row][col].imageName
                 var matchLen = 1
                 while col + matchLen < cols && grid[row][col + matchLen].imageName == name { matchLen += 1 }
-                if matchLen >= 3 {
-                    for i in 0..<matchLen { matches.insert(GridPosition(row: row, col: col + i)) }
-                }
+                if matchLen >= 3 { for i in 0..<matchLen { matches.insert(GridPosition(row: row, col: col + i)) } }
                 col += matchLen
             }
         }
-        
-        // Vertical
         for col in 0..<cols {
             var row = 0
             while row < rows {
                 let name = grid[row][col].imageName
                 var matchLen = 1
                 while row + matchLen < rows && grid[row + matchLen][col].imageName == name { matchLen += 1 }
-                if matchLen >= 3 {
-                    for i in 0..<matchLen { matches.insert(GridPosition(row: row + i, col: col)) }
-                }
+                if matchLen >= 3 { for i in 0..<matchLen { matches.insert(GridPosition(row: row + i, col: col)) } }
                 row += matchLen
             }
         }
@@ -432,7 +433,6 @@ class MiniGameScreenVC: UIViewController {
     private func processMatches(_ matches: Set<GridPosition>) {
         score += matches.count * 10 * comboMultiplier
         comboMultiplier += 1
-        
         for pos in matches {
             let view = cellViews[pos.row][pos.col]
             UIView.animate(withDuration: 0.25, animations: {
@@ -440,10 +440,7 @@ class MiniGameScreenVC: UIViewController {
                 view.alpha = 0
             })
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.removeMatches(matches)
-        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self.removeMatches(matches) }
     }
 
     private func removeMatches(_ matches: Set<GridPosition>) {
@@ -472,10 +469,11 @@ class MiniGameScreenVC: UIViewController {
             
             for i in 0..<emptySpaces {
                 let newImg = elements.randomElement()!
-                grid[i][col] = Tile(imageName: newImg)
+                let targetRow = emptySpaces - 1 - i
+                grid[targetRow][col] = Tile(imageName: newImg)
                 let recycledView = viewsToRemove[i]
-                cellViews[i][col] = recycledView
-                setupNewCellView(recycledView, row: i, col: col, imageName: newImg)
+                cellViews[targetRow][col] = recycledView
+                setupNewCellView(recycledView, row: targetRow, col: col, imageName: newImg)
             }
         }
         
@@ -494,19 +492,22 @@ class MiniGameScreenVC: UIViewController {
     }
 
     private func setupNewCellView(_ view: UIView, row: Int, col: Int, imageName: String) {
-        view.alpha = 0
+        // Сначала возвращаем вью в дефолтное состояние, чтобы избежать багов размера
+        view.transform = .identity
+        view.alpha = 1
+        
         let targetX = 10 + CGFloat(col) * cellSize
         let targetY = 10 + CGFloat(row) * cellSize
-        view.frame.origin = CGPoint(x: targetX, y: targetY - (cellSize * 3))
+        
+        // Устанавливаем начальную позицию сверху
+        view.frame = CGRect(x: targetX, y: targetY - (cellSize * 4), width: cellSize, height: cellSize)
         view.tag = row * 100 + col
-        view.transform = .identity
         
         if let iv = view.viewWithTag(999) as? UIImageView {
             iv.image = UIImage(named: imageName)
         }
         
         UIView.animate(withDuration: 0.4, delay: 0.05 * Double(row), usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .curveEaseOut) {
-            view.alpha = 1
             view.frame.origin.y = targetY
         }
     }
@@ -515,6 +516,8 @@ class MiniGameScreenVC: UIViewController {
         for row in 0..<rows {
             for col in 0..<cols {
                 let view = cellViews[row][col]
+                view.transform = .identity
+                view.alpha = 1
                 view.frame = CGRect(x: 10 + CGFloat(col) * cellSize, y: 10 + CGFloat(row) * cellSize, width: cellSize, height: cellSize)
                 view.tag = row * 100 + col
             }
@@ -523,11 +526,7 @@ class MiniGameScreenVC: UIViewController {
 
     private func checkAndProcessMatches() {
         let matches = findAllMatches()
-        if !matches.isEmpty {
-            processMatches(matches)
-        } else {
-            isProcessing = false
-            comboMultiplier = 1
-        }
+        if !matches.isEmpty { processMatches(matches) }
+        else { isProcessing = false; comboMultiplier = 1 }
     }
 }
