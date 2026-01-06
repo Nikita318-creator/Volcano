@@ -153,7 +153,7 @@ class MiniGameScreenVC: UIViewController {
     @objc private func showInfoAlert() {
         let alert = UIAlertController(
             title: "Geological Break",
-            message: "Take a break from testing and sharpen your mind with this geological puzzle!\n\nStory: You are stabilizing rare crystal structures. Swap adjacent elements to create a line of three or more identical minerals to process them.\n\nMore matches increase the stability level!",
+            message: "Take a break from testing and sharpen your mind with this geological puzzle!\n\nYou are stabilizing rare crystal structures. Swap adjacent elements to create a line of three or more identical minerals to process them.\n\nMore matches increase the stability level!",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Let's Start", style: .default))
