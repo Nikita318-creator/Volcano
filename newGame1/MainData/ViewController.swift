@@ -32,10 +32,6 @@ class ViewController: UIViewController {
     }
     
     private func showMainInterface() {
-//        let tabbarVC = MainTabBarController()
-//        tabbarVC.modalPresentationStyle = .fullScreen
-//        present(tabbarVC, animated: true)
-        
         let gameVC = GameVC()
         gameVC.modalPresentationStyle = .fullScreen
         present(gameVC, animated: true)

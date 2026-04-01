@@ -25,6 +25,23 @@ class IceDrillVC: BaseGameVC {
     private var cellViews: [[UIView]] = []
     private var grid: [[IceTile]] = []
     
+    // Инструкция для ревьюера
+    private let instructionsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "\nHOW TO PLAY:\n1. TAP A SYMBOL TO SELECT IT\n2. TAP AN ADJACENT SYMBOL TO SWAP\n3. MATCH 3 OR MORE TO DRILL THE ICE\n"
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 14, weight: .black)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.backgroundColor = .black.withAlphaComponent(0.7)
+        // Небольшая тень для лучшей читаемости на любом фоне
+        label.layer.shadowColor = UIColor.black.cgColor
+        label.layer.shadowRadius = 3.0
+        label.layer.shadowOpacity = 1
+        label.layer.shadowOffset = CGSize(width: 1, height: 1)
+        return label
+    }()
+    
     private var currentScore = 0 {
         didSet { updateProgress() }
     }
@@ -32,6 +49,8 @@ class IceDrillVC: BaseGameVC {
     private var selectedPosition: (row: Int, col: Int)?
     private var cellSize: CGFloat = 0
 
+    var onGameFinished: (() -> Void)?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.bgImageView.image = UIImage(named: "bg_story")
@@ -76,6 +95,14 @@ class IceDrillVC: BaseGameVC {
         gridContainer.snp.makeConstraints { make in
             make.center.equalToSuperview()
             make.width.height.equalTo(side)
+        }
+        
+        // Добавляем лейбл с правилами ровно под сеткой
+        view.addSubview(instructionsLabel)
+        instructionsLabel.snp.makeConstraints { make in
+            make.top.equalTo(gridContainer.snp.bottom).offset(40)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(gridContainer)
         }
         
         let gridPadding: CGFloat = 10
@@ -291,7 +318,6 @@ class IceDrillVC: BaseGameVC {
         let tx = padding + CGFloat(col) * (cellSize + spacing)
         let ty = padding + CGFloat(row) * (cellSize + spacing)
         
-        // Начальная позиция выше контейнера
         view.frame = CGRect(x: tx, y: -cellSize * 2, width: cellSize, height: cellSize)
         view.tag = row * 100 + col
         if let iv = view.viewWithTag(777) as? UIImageView { iv.image = UIImage(named: imageName) }
@@ -318,9 +344,7 @@ class IceDrillVC: BaseGameVC {
         
         if currentScore >= targetScore {
             isProcessing = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.present(CatchVC(), animated: true)
-            }
+            onGameFinished?()
         }
     }
 

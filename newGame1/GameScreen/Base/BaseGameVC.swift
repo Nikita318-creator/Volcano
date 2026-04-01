@@ -52,7 +52,12 @@ class BaseGameVC: UIViewController {
     }
     
     @objc func backTapped() {
-        dismiss(animated: true)
+        // Если мы в игре или истории — просто закрываем текущий экран и возвращаемся в меню
+        if let presenting = self.presentingViewController {
+            presenting.dismiss(animated: false)
+        } else {
+            self.dismiss(animated: false)
+        }
     }
     
     // Хелпер для создания "игровых" кнопок (стиль слотов/казуалок)
