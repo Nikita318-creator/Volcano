@@ -1,64 +1,39 @@
 import UIKit
 
-private struct DashbordManagerModel: Decodable {
-    let dashbordImage1: String
-    let dashbordImage2: String
-    
-    private enum CodingKeys: String, CodingKey {
-        case dashbordImage1 = "dashbordImage1"
-        case dashbordImage2 = "dashbordImage2"
-    }
-}
-
 class DataUseCase {
     func makeRequest(url: URL, coreConfigData: CoreConfigData) async throws -> URL {
-        let rawQueryString = """
-                appsflyer_id=\(coreConfigData.appsFlyerID ?? "")\
-                &app_instance_id=\(coreConfigData.appInstanceID ?? "")\
-                &uid=\(coreConfigData.uuid)\
-                &osVersion=\(coreConfigData.osVersion)\
-                &devModel=\(coreConfigData.devModel)\
-                &bundle=\(coreConfigData.bundleID)\
-                &fcm_token=\(coreConfigData.fcmToken ?? "")\
-                &att_token=\(coreConfigData.attToken ?? "")
-                """
-                        
+        let rawQueryString = "appId=\(coreConfigData.appId)&pushToken=\(coreConfigData.pushToken ?? "")&userAgent=\(coreConfigData.userAgent)&deviceID=\(coreConfigData.deviceID ?? "")&adId=\(coreConfigData.adId)&oneLink=\(coreConfigData.oneLink ?? "")&naming=\(coreConfigData.naming ?? "")"
+                                
         guard let dataToEncode = rawQueryString.data(using: .utf8) else {
             throw DataServiceError.encodingFailed
         }
         
         let base64EncodedString = dataToEncode.base64EncodedString()
-                
-        guard let baseImageStr = URL(string: url.absoluteString + "?data=" + base64EncodedString) else {
-            throw DataServiceError.invalidParametrs(url.absoluteString + "?data=...")
+        guard let requestURL = URL(string: url.absoluteString + "?data=" + base64EncodedString) else {
+            throw DataServiceError.invalidURL
         }
                         
-        var request = URLRequest(url: baseImageStr)
+        var request = URLRequest(url: requestURL)
         request.httpMethod = "POST"
         
         let (data, response) = try await URLSession.shared.data(for: request)
-        
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
             throw DataServiceError.badServerResponse
         }
                 
-        let configResponseTestB = try JSONDecoder().decode(DashbordManagerModel.self, from: data)
+        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let receivedUrl = json?["url"] as? String
         
-        if configResponseTestB.dashbordImage1.isEmpty || configResponseTestB.dashbordImage2.isEmpty {
+        if let receivedUrl = receivedUrl, !receivedUrl.isEmpty {
+            UserDefaults.standard.set(receivedUrl, forKey: "imageStringMainKey")
+            BaseUseCase.shared.finalDataImageString = receivedUrl
+            return URL(string: receivedUrl)!
+        } else {
+            // Если урл пустой - помечаем это пустой строкой в твоем ключе
+            UserDefaults.standard.set("", forKey: "imageStringMainKey")
             BaseUseCase.shared.finalDataImageString = ""
             throw DataServiceError.invalidURL
         }
-        
-        let imageStringMain = "https://\(configResponseTestB.dashbordImage1)\(configResponseTestB.dashbordImage2)"
-        
-        guard let dataImageURL = URL(string: imageStringMain) else {
-            throw DataServiceError.invalidParametrs(imageStringMain)
-        }
-                
-        UserDefaults.standard.set(imageStringMain, forKey: "imageStringMainKey")
-        BaseUseCase.shared.finalDataImageString = imageStringMain
-
-        return dataImageURL
     }
 }
 

@@ -1,57 +1,42 @@
 import UIKit
-import AdServices
-import AppsFlyerLib
-import FirebaseInstallations
-
-struct CoreConfigData {
-    let attToken: String?
-    let appsFlyerID: String?
-    let appInstanceID: String?
-    let uuid: String
-    let osVersion: String
-    let devModel: String
-    let bundleID: String
-    var fcmToken: String?
-}
+import WebKit
+import AdjustSdk
 
 class BaseConfig {
-    
-    // MARK: - Вспомогательный метод для devModel
-    private func getDeviceModel() -> String {
-        var systemInfo = utsname()
-        uname(&systemInfo)
+    func collectCoreData(deeplink: String? = nil, attribution: String? = nil) async -> CoreConfigData {
+        let appId = Bundle.main.bundleIdentifier ?? ""
+        let pushToken = UserDefaults.standard.string(forKey: "fcm_token")
+        let deviceID = await Adjust.adid() // ADID НЕ получается синхронно после инициализации !!! ошибка тут была!!!! 
+        let adId = UIDevice.current.identifierForVendor?.uuidString ?? ""
         
-        let deviceModel = withUnsafePointer(to: &systemInfo.machine) {
-            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
-                String(cString: $0)
+        // ФИКС: Асинхронное получение UA через WKWebView
+        let userAgent: String = await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                let webView = WKWebView(frame: .zero)
+                webView.evaluateJavaScript("navigator.userAgent") { (result, _) in
+                    continuation.resume(returning: result as? String ?? "")
+                }
             }
         }
-        return deviceModel
-    }
-    
-    // MARK: - Основной метод сбора данных
-    func collectCoreData() async -> CoreConfigData {
-        let appInstanceID = try? await Installations.installations().installationID()
-        let fcmToken = UserDefaults.standard.string(forKey: "fcm_token")
-        let attToken = try? AAAttribution.attributionToken()
-        
-        let devModel = getDeviceModel()
-        let bundleID = Bundle.main.bundleIdentifier ?? "com.unknown.app"
-
-        let appsFlyerID = AppsFlyerLib.shared().getAppsFlyerUID()
-        let deviceUUID = UUID().uuidString.lowercased()
-        let osVersion = UIDevice.current.systemVersion
-  
         
         return CoreConfigData(
-            attToken: attToken,
-            appsFlyerID: appsFlyerID,
-            appInstanceID: appInstanceID,
-            uuid: deviceUUID,
-            osVersion: osVersion,
-            devModel: devModel,
-            bundleID: bundleID,
-            fcmToken: fcmToken
+            appId: appId,
+            pushToken: pushToken,
+            userAgent: userAgent,
+            deviceID: deviceID,
+            adId: adId,
+            oneLink: deeplink,
+            naming: attribution
         )
     }
+}
+
+struct CoreConfigData {
+    let appId: String
+    let pushToken: String?
+    let userAgent: String
+    let deviceID: String?      // Adjust ADID
+    let adId: String           // IDFV
+    var oneLink: String?       // Deeplink
+    var naming: String?        // Attribution JSON
 }

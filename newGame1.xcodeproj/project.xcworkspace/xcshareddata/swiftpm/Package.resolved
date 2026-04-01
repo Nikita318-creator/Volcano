@@ -1,5 +1,5 @@
 {
-  "originHash" : "5d91f9d04ffaec58a98e2adab1198837d668d9a8b8771909c1ed88f48642aa14",
+  "originHash" : "34a6a39437b7b1cc7181596287b6139a63a60aaeef69ecd3567e37abd282f527",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -11,21 +11,21 @@
       }
     },
     {
+      "identity" : "adjust_signature_sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/adjust/adjust_signature_sdk.git",
+      "state" : {
+        "revision" : "b54cae6aac6fdf980e16cbe4493c07a8e7011947",
+        "version" : "3.62.0"
+      }
+    },
+    {
       "identity" : "app-check",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/app-check.git",
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
-      }
-    },
-    {
-      "identity" : "appsflyerframework",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/AppsFlyerSDK/AppsFlyerFramework.git",
-      "state" : {
-        "revision" : "6cc9a9400a9d15e26d1ccf83ed9924c1dfbe8b75",
-        "version" : "6.17.8"
       }
     },
     {
@@ -98,6 +98,15 @@
       "state" : {
         "revision" : "040d087ac2267d2ddd4cca36c757d1c6a05fdbfe",
         "version" : "101.0.0"
+      }
+    },
+    {
+      "identity" : "ios_sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/adjust/ios_sdk",
+      "state" : {
+        "branch" : "master",
+        "revision" : "4dbba3ac0a247a1072363b11c1f2534e873bc96b"
       }
     },
     {

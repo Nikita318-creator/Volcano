@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		108287D72EE4827100BD94F5 /* AppsFlyerLib in Frameworks */ = {isa = PBXBuildFile; productRef = 108287D62EE4827100BD94F5 /* AppsFlyerLib */; };
+		101FBE112F7CBB4E001E6C2A /* AdjustGoogleOdm in Frameworks */ = {isa = PBXBuildFile; productRef = 101FBE102F7CBB4E001E6C2A /* AdjustGoogleOdm */; };
+		101FBE132F7CBB4E001E6C2A /* AdjustSdk in Frameworks */ = {isa = PBXBuildFile; productRef = 101FBE122F7CBB4E001E6C2A /* AdjustSdk */; };
+		101FBE172F7CBB4E001E6C2A /* AdjustWebBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 101FBE162F7CBB4E001E6C2A /* AdjustWebBridge */; };
 		108287DA2EE4828300BD94F5 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 108287D92EE4828300BD94F5 /* SnapKit */; };
 		108287DD2EE4848600BD94F5 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 108287DC2EE4848600BD94F5 /* FirebaseCore */; };
 		108287DF2EE4848600BD94F5 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 108287DE2EE4848600BD94F5 /* FirebaseDatabase */; };
@@ -44,11 +46,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				108287D72EE4827100BD94F5 /* AppsFlyerLib in Frameworks */,
+				101FBE172F7CBB4E001E6C2A /* AdjustWebBridge in Frameworks */,
+				101FBE132F7CBB4E001E6C2A /* AdjustSdk in Frameworks */,
 				108287DD2EE4848600BD94F5 /* FirebaseCore in Frameworks */,
 				108287E12EE4848600BD94F5 /* FirebaseMessaging in Frameworks */,
 				108287DF2EE4848600BD94F5 /* FirebaseDatabase in Frameworks */,
 				108287DA2EE4828300BD94F5 /* SnapKit in Frameworks */,
+				101FBE112F7CBB4E001E6C2A /* AdjustGoogleOdm in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,11 +95,13 @@
 			);
 			name = newGame1;
 			packageProductDependencies = (
-				108287D62EE4827100BD94F5 /* AppsFlyerLib */,
 				108287D92EE4828300BD94F5 /* SnapKit */,
 				108287DC2EE4848600BD94F5 /* FirebaseCore */,
 				108287DE2EE4848600BD94F5 /* FirebaseDatabase */,
 				108287E02EE4848600BD94F5 /* FirebaseMessaging */,
+				101FBE102F7CBB4E001E6C2A /* AdjustGoogleOdm */,
+				101FBE122F7CBB4E001E6C2A /* AdjustSdk */,
+				101FBE162F7CBB4E001E6C2A /* AdjustWebBridge */,
 			);
 			productName = newGame1;
 			productReference = 108287A92EE4804000BD94F5 /* newGame1.app */;
@@ -126,9 +132,9 @@
 			mainGroup = 108287A02EE4804000BD94F5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				108287D52EE4827100BD94F5 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
 				108287D82EE4828300BD94F5 /* XCRemoteSwiftPackageReference "SnapKit" */,
 				108287DB2EE4848600BD94F5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				101FBE0F2F7CBB4E001E6C2A /* XCRemoteSwiftPackageReference "ios_sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 108287AA2EE4804000BD94F5 /* Products */;
@@ -187,6 +193,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.2;
+				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = app.snowIceFish.com;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -230,6 +237,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.1.2;
+				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = app.snowIceFish.com;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -392,12 +400,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		108287D52EE4827100BD94F5 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */ = {
+		101FBE0F2F7CBB4E001E6C2A /* XCRemoteSwiftPackageReference "ios_sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework.git";
+			repositoryURL = "https://github.com/adjust/ios_sdk";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.17.8;
+				branch = master;
+				kind = branch;
 			};
 		};
 		108287D82EE4828300BD94F5 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
@@ -419,10 +427,20 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		108287D62EE4827100BD94F5 /* AppsFlyerLib */ = {
+		101FBE102F7CBB4E001E6C2A /* AdjustGoogleOdm */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 108287D52EE4827100BD94F5 /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;
-			productName = AppsFlyerLib;
+			package = 101FBE0F2F7CBB4E001E6C2A /* XCRemoteSwiftPackageReference "ios_sdk" */;
+			productName = AdjustGoogleOdm;
+		};
+		101FBE122F7CBB4E001E6C2A /* AdjustSdk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 101FBE0F2F7CBB4E001E6C2A /* XCRemoteSwiftPackageReference "ios_sdk" */;
+			productName = AdjustSdk;
+		};
+		101FBE162F7CBB4E001E6C2A /* AdjustWebBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 101FBE0F2F7CBB4E001E6C2A /* XCRemoteSwiftPackageReference "ios_sdk" */;
+			productName = AdjustWebBridge;
 		};
 		108287D92EE4828300BD94F5 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;

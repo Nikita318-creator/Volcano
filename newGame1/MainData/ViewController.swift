@@ -5,7 +5,7 @@ import SnapKit
 class ViewController: UIViewController {
     
     private var splashVC: StartVC?
-    private var dataCheckTimer: Timer?
+    private var dataCheckTimer: Timer? // todo избавляемся от таймеров!!
     private var deadlineTimer: Timer?
     
     private var mainImageView: WKWebView?

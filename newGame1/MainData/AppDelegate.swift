@@ -1,74 +1,90 @@
 import UIKit
-import FirebaseMessaging
 import FirebaseCore
-import FirebaseInstallations
-import AppsFlyerLib
+import FirebaseMessaging
+import AdjustSdk
+//import AppTrackingTransparency
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
         
-        AppsFlyerLib.shared().appsFlyerDevKey = "P8Cmc5f5JjkNjQ3haoGbWS"
-        AppsFlyerLib.shared().appleAppID = "6757113019"
-        AppsFlyerLib.shared().start()
+        let appToken = "ВАШ_ADJUST_TOKEN"
+        let environment = ADJEnvironmentProduction
+        let adjustConfig = ADJConfig(appToken: appToken, environment: environment)
+        adjustConfig?.delegate = self
+        
+        if let config = adjustConfig {
+            Adjust.initSdk(config)
+        }
         
         Messaging.messaging().delegate = self
-
         UNUserNotificationCenter.current().delegate = self
+        
+        // 1. Запрос пушей
         let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in }
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions) { _, _ in
+            // 2. Сразу после пушей запрашиваем IDFA (Tracking)
+            // Делаем небольшую задержку, чтобы алерты не накладывались друг на друга
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+//                ATTrackingManager.requestTrackingAuthorization { status in
+//                    // Статус можно не обрабатывать, Adjust сам подхватит IDFA, если разрешат
+//                }
+//            }
+        }
+        
         application.registerForRemoteNotifications()
-
-        let _ = BaseUseCase.shared
         
         return true
     }
-        
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Messaging.messaging().apnsToken = deviceToken
-    }
+
+    // MARK: - Adjust Delegates
     
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("Failed to register for remote notifications: \(error.localizedDescription)")
+    func adjustAttributionChanged(_ attribution: ADJAttribution?) {
+        // Это главная точка входа. Когда Adjust понял, кто пришел, мы забираем данные.
+        if let dict = attribution?.dictionary() {
+            if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: []),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                Task {
+                    // Вызываем один раз с данными аттрибуции
+                    await BaseUseCase.shared.setConfigData(attribution: jsonString)
+                }
+            }
+        }
+    }
+
+    func adjustDeferredDeeplinkReceived(_ deeplink: URL?) -> Bool {
+        if let link = deeplink?.absoluteString {
+            Task {
+                await BaseUseCase.shared.setConfigData(deeplink: link)
+            }
+        }
+        return true
+    }
+
+    func adjustDeeplinkResponse(_ deeplink: URL?) -> Bool {
+        if let link = deeplink?.absoluteString {
+            Task {
+                await BaseUseCase.shared.setConfigData(deeplink: link)
+            }
+        }
+        return true
     }
 }
 
+// MARK: - Firebase Messaging
 extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        if let dataImageURLString = UserDefaults.standard.string(forKey: "imageStringMainKey") {
-            BaseUseCase.shared.finalDataImageString = dataImageURLString
-            return
-        }
-        
+        // 1. Просто сохраняем токен. НИКАКИХ вызовов setConfigData здесь!
         if let token = fcmToken {
             UserDefaults.standard.set(token, forKey: "fcm_token")
-            BaseUseCase.shared.setConfigData()
         }
-    }
-    
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
-        completionHandler([.banner, .sound, .badge])
-    }
-}
-
-extension AppDelegate {
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         
-        if let linkString = userInfo["link"] as? String,
-           let url = URL(string: linkString) {
-            
-            UIApplication.shared.open(url, options: [:]) { success in }
-            
-            completionHandler(.newData)
-            return
+        // 2. Если у нас уже есть закешированный URL, просто прокидываем его в модель
+        if let cached = UserDefaults.standard.string(forKey: "imageStringMainKey") {
+            BaseUseCase.shared.finalDataImageString = cached
         }
-        completionHandler(.noData)
     }
 }
