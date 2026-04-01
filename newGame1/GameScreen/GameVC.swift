@@ -10,7 +10,8 @@ class GameVC: BaseGameVC {
     
     private lazy var startButton = createGameButton(title: "START EXPEDITION", color: UIColor(red: 0.9, green: 0.4, blue: 0.1, alpha: 1.0))
     private lazy var collectionButton = createGameButton(title: "TROPHIES", color: UIColor(red: 0.2, green: 0.6, blue: 0.8, alpha: 1.0))
-    
+    private lazy var legendButton = createGameButton(title: "THE LEGEND", color: UIColor(red: 0.4, green: 0.3, blue: 0.7, alpha: 1.0))
+
     // MARK: - Lifecycle
     init() {
         super.init(showBackButton: false)
@@ -67,11 +68,27 @@ class GameVC: BaseGameVC {
         collectionButton.addTarget(self, action: #selector(collectionTapped), for: .touchUpInside)
         view.addSubview(collectionButton)
         collectionButton.snp.makeConstraints { make in
-            make.top.equalTo(startButton.snp.bottom).offset(20)
+            make.top.equalTo(startButton.snp.bottom).offset(15)
             make.centerX.equalToSuperview()
             make.width.equalTo(280)
-            make.height.equalTo(60)
+            make.height.equalTo(55)
         }
+        
+        // Добавляем кнопку легенды
+        legendButton.addTarget(self, action: #selector(legendTapped), for: .touchUpInside)
+        view.addSubview(legendButton)
+        legendButton.snp.makeConstraints { make in
+            make.top.equalTo(collectionButton.snp.bottom).offset(15)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(280)
+            make.height.equalTo(55)
+        }
+    }
+    
+    @objc private func legendTapped() {
+        let backVC = BackstoryVC()
+        backVC.modalPresentationStyle = .overFullScreen
+        present(backVC, animated: true)
     }
     
     // Скрываем/показываем все кнопки и статы разом
@@ -81,6 +98,7 @@ class GameVC: BaseGameVC {
             self.topPanel.alpha = alpha
             self.startButton.alpha = alpha
             self.collectionButton.alpha = alpha
+            self.legendButton.alpha = alpha // Теперь скрывается корректно
         }
     }
     
@@ -102,6 +120,9 @@ class GameVC: BaseGameVC {
             storyVC.dismiss(animated: false) {
                 self?.presentCorrectGame()
             }
+        }
+        storyVC.onDismissed = { [weak self] in
+            self?.showInterface(true)
         }
         present(storyVC, animated: false)
     }
@@ -130,7 +151,14 @@ class GameVC: BaseGameVC {
     }
     
     private func handleWin() {
+        // 1. Повышаем уровень
         GameManager.shared.levelUp()
+        
+        // 2. Начисляем рандомные поинты (от 8 до 22)
+        let randomPoints = Int.random(in: 8...22)
+        GameManager.shared.points += randomPoints
+        
+        // 3. Обновляем лейблы на главном экране
         updateStats()
         
         if let trophy = GameManager.shared.checkTrophy() {
@@ -138,7 +166,7 @@ class GameVC: BaseGameVC {
             resultVC.configure(with: trophy)
             present(resultVC, animated: false)
         } else {
-            // Если идем дальше, кнопки по-прежнему невидимы (alpha = 0)
+            // Если трофея нет, показываем следующую часть истории
             presentStory()
         }
     }

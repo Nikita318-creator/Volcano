@@ -7,6 +7,8 @@ class BaseGameVC: UIViewController {
     let backButton = UIButton(type: .system)
     var showBackButton: Bool = true
     
+    var onDismissed: (() -> Void)?
+
     init(showBackButton: Bool = true) {
         self.showBackButton = showBackButton
         super.init(nibName: nil, bundle: nil)
@@ -52,6 +54,7 @@ class BaseGameVC: UIViewController {
     }
     
     @objc func backTapped() {
+        onDismissed?()
         // Если мы в игре или истории — просто закрываем текущий экран и возвращаемся в меню
         if let presenting = self.presentingViewController {
             presenting.dismiss(animated: false)
