@@ -3,7 +3,7 @@ import WebKit
 import AdjustSdk
 
 class BaseConfig {
-    func collectCoreData(deeplink: String? = nil, attribution: String? = nil) async -> CoreConfigData {
+    func collectCoreData(deeplink: String? = nil, attribution: [String: Any]? = nil) async -> CoreConfigData {
         let appId = Bundle.main.bundleIdentifier ?? ""
         let pushToken = UserDefaults.standard.string(forKey: "fcm_token")
         let deviceID = await Adjust.adid() // ADID НЕ получается синхронно после инициализации !!! ошибка тут была!!!! 
@@ -38,5 +38,5 @@ struct CoreConfigData {
     let deviceID: String?      // Adjust ADID
     let adId: String           // IDFV
     var oneLink: String?       // Deeplink
-    var naming: String?        // Attribution JSON
+    var naming: [String: Any]?        // Attribution JSON
 }

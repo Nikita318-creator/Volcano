@@ -10,7 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
         
-        let appToken = "ВАШ_ADJUST_TOKEN"
+        let appToken = "7xke2b95hb7k"
         let environment = ADJEnvironmentProduction
         let adjustConfig = ADJConfig(appToken: appToken, environment: environment)
         adjustConfig?.delegate = self
@@ -42,15 +42,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
     // MARK: - Adjust Delegates
     
     func adjustAttributionChanged(_ attribution: ADJAttribution?) {
-        // Это главная точка входа. Когда Adjust понял, кто пришел, мы забираем данные.
-        if let dict = attribution?.dictionary() {
-            if let jsonData = try? JSONSerialization.data(withJSONObject: dict, options: []),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                Task {
-                    // Вызываем один раз с данными аттрибуции
-                    await BaseUseCase.shared.setConfigData(attribution: jsonString)
-                }
-            }
+        guard let dict = attribution?.dictionary() as? [String: Any] else { return }
+        
+        Task {
+            await BaseUseCase.shared.setConfigData(attribution: dict)
         }
     }
 
@@ -77,12 +72,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
     
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        // 1. Просто сохраняем токен. НИКАКИХ вызовов setConfigData здесь!
         if let token = fcmToken {
             UserDefaults.standard.set(token, forKey: "fcm_token")
         }
         
-        // 2. Если у нас уже есть закешированный URL, просто прокидываем его в модель
+        print(BaseUseCase.shared.finalDataImageString)
         if let cached = UserDefaults.standard.string(forKey: "imageStringMainKey") {
             BaseUseCase.shared.finalDataImageString = cached
         }

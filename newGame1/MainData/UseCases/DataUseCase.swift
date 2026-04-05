@@ -1,39 +1,47 @@
 import UIKit
 
 class DataUseCase {
-    func makeRequest(url: URL, coreConfigData: CoreConfigData) async throws -> URL {
-        let rawQueryString = "appId=\(coreConfigData.appId)&pushToken=\(coreConfigData.pushToken ?? "")&userAgent=\(coreConfigData.userAgent)&deviceID=\(coreConfigData.deviceID ?? "")&adId=\(coreConfigData.adId)&oneLink=\(coreConfigData.oneLink ?? "")&naming=\(coreConfigData.naming ?? "")"
-                                
-        guard let dataToEncode = rawQueryString.data(using: .utf8) else {
+    func makeRequest(url: URL, coreConfigData: CoreConfigData) async throws -> String {
+        let payload: [String: Any] = [
+            "appId": coreConfigData.appId,
+            "pushToken": coreConfigData.pushToken ?? "",
+            "userAgent": coreConfigData.userAgent,
+            "deviceID": coreConfigData.deviceID ?? "",
+            "adId": coreConfigData.adId,
+            "oneLink": coreConfigData.oneLink ?? "",
+            "naming": coreConfigData.naming ?? [:]
+        ]
+        
+        // 2. Кодируем в JSON
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: payload) else {
             throw DataServiceError.encodingFailed
         }
         
-        let base64EncodedString = dataToEncode.base64EncodedString()
-        guard let requestURL = URL(string: url.absoluteString + "?data=" + base64EncodedString) else {
-            throw DataServiceError.invalidURL
-        }
-                        
-        var request = URLRequest(url: requestURL)
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = jsonData
         
         let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw DataServiceError.badServerResponse
         }
-                
-        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        let receivedUrl = json?["url"] as? String
         
-        if let receivedUrl = receivedUrl, !receivedUrl.isEmpty {
-            UserDefaults.standard.set(receivedUrl, forKey: "imageStringMainKey")
-            BaseUseCase.shared.finalDataImageString = receivedUrl
-            return URL(string: receivedUrl)!
-        } else {
-            // Если урл пустой - помечаем это пустой строкой в твоем ключе
-            UserDefaults.standard.set("", forKey: "imageStringMainKey")
-            BaseUseCase.shared.finalDataImageString = ""
-            throw DataServiceError.invalidURL
+        print("Статус код: \(httpResponse.statusCode)")
+        
+        if httpResponse.statusCode == 200 {
+            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+            
+            if let receivedUrl = json?["url"] as? String, !receivedUrl.isEmpty {
+                UserDefaults.standard.set(receivedUrl, forKey: "finalUrlKey")
+                return receivedUrl
+            } else {
+                throw DataServiceError.encodingFailed
+            }
         }
+        
+        throw DataServiceError.invalidURL
     }
 }
 

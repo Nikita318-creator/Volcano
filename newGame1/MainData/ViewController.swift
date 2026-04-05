@@ -6,7 +6,6 @@ class ViewController: UIViewController {
     
     private var splashVC: StartVC?
     private var dataCheckTimer: Timer? // todo избавляемся от таймеров!!
-    private var deadlineTimer: Timer?
     
     private var mainImageView: WKWebView?
     private var popupImageView: WKWebView?
@@ -27,7 +26,6 @@ class ViewController: UIViewController {
         if splashVC == nil {
             showSplashScreen()
             startDataCheckTimer()
-            startDeadlineTimer()
         }
     }
     
@@ -49,11 +47,8 @@ class ViewController: UIViewController {
     private func dismissSplashScreen() {
         guard let splash = splashVC else { return }
         
-        // Останавливаем ОБА таймера
         dataCheckTimer?.invalidate()
         dataCheckTimer = nil
-        deadlineTimer?.invalidate()
-        deadlineTimer = nil
         
         UIView.animate(withDuration: 0.3, animations: {
             splash.view.alpha = 0
@@ -71,19 +66,14 @@ class ViewController: UIViewController {
         dataCheckTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(checkForData), userInfo: nil, repeats: true)
     }
     
-    private func startDeadlineTimer() {
-        deadlineTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
-            print("⏳ Deadline reached. Moving forward regardless of data.")
-            self?.dismissSplashScreen()
-        }
-    }
-    
     @objc private func checkForData() {
         let finalURL = BaseUseCase.shared.finalDataImageString
         
         if finalURL != nil {
             print("✅ Data received from Firebase.")
             dismissSplashScreen()
+        } else {
+            print("✅ 6666666666666666")
         }
     }
     
