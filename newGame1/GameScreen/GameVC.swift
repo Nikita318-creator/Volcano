@@ -1,16 +1,22 @@
 import UIKit
 import SnapKit
+import StoreKit
 
-class GameVC: BaseGameVC {
+class GameVC: BaseGameVC, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     // MARK: - UI Elements
     private let topPanel = UIView()
     private let pointsLabel = UILabel()
     private let levelLabel = UILabel()
     
-    private lazy var startButton = createGameButton(title: "START EXPEDITION", color: UIColor(red: 0.9, green: 0.4, blue: 0.1, alpha: 1.0))
+    private lazy var startButton = createGameButton(title: "GO ON EXPEDITION", color: UIColor(red: 0.9, green: 0.4, blue: 0.1, alpha: 1.0))
     private lazy var collectionButton = createGameButton(title: "TROPHIES", color: UIColor(red: 0.2, green: 0.6, blue: 0.8, alpha: 1.0))
     private lazy var legendButton = createGameButton(title: "THE LEGEND", color: UIColor(red: 0.4, green: 0.3, blue: 0.7, alpha: 1.0))
+    
+    private lazy var rateButton = createGameButton(title: "RATE APP", color: .systemGreen)
+    private lazy var shareButton = createGameButton(title: "SHARE APP", color: .systemTeal)
+    private lazy var bgButton = createGameButton(title: "SET BACKGROUND", color: .systemGray)
+    private lazy var privacyButton = createGameButton(title: "PRIVACY", color: .darkGray)
 
     // MARK: - Lifecycle
     init() {
@@ -21,13 +27,13 @@ class GameVC: BaseGameVC {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadSavedBackground()
         setupUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateStats()
-        // Когда возвращаемся из игры или экрана трофеев — плавно проявляем меню
         showInterface(true)
     }
     
@@ -57,32 +63,72 @@ class GameVC: BaseGameVC {
         levelLabel.textColor = .white
         levelLabel.font = .systemFont(ofSize: 16, weight: .bold)
 
-        startButton.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
-        view.addSubview(startButton)
-        startButton.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.width.equalTo(280)
-            make.height.equalTo(70)
-        }
+        let buttons = [startButton, collectionButton, legendButton, rateButton, shareButton, bgButton, privacyButton]
+        let selectors: [Selector] = [
+            #selector(startTapped), #selector(collectionTapped), #selector(legendTapped),
+            #selector(rateApp), #selector(shareApp), #selector(changeBackground), #selector(showPrivacy)
+        ]
         
-        collectionButton.addTarget(self, action: #selector(collectionTapped), for: .touchUpInside)
-        view.addSubview(collectionButton)
-        collectionButton.snp.makeConstraints { make in
-            make.top.equalTo(startButton.snp.bottom).offset(15)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(280)
-            make.height.equalTo(55)
+        for (index, button) in buttons.enumerated() {
+            view.addSubview(button)
+            button.addTarget(self, action: selectors[index], for: .touchUpInside)
+            button.snp.makeConstraints { make in
+                if index == 0 {
+                    make.top.equalTo(topPanel.snp.bottom).offset(25)
+                } else {
+                    make.top.equalTo(buttons[index-1].snp.bottom).offset(15)
+                }
+                make.centerX.equalToSuperview()
+                make.width.equalTo(280)
+                make.height.equalTo(index == 0 ? 70 : 52)
+            }
         }
-        
-        // Добавляем кнопку легенды
-        legendButton.addTarget(self, action: #selector(legendTapped), for: .touchUpInside)
-        view.addSubview(legendButton)
-        legendButton.snp.makeConstraints { make in
-            make.top.equalTo(collectionButton.snp.bottom).offset(15)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(280)
-            make.height.equalTo(55)
+    }
+
+    // MARK: - Reviewer Actions
+    @objc private func rateApp() {
+        if let scene = view.window?.windowScene { SKStoreReviewController.requestReview(in: scene) }
+    }
+    
+    @objc private func shareApp() {
+        let text = "Join me in Ice Fishing Expedition! 🎣\nhttps://apps.apple.com/app/id6761615098"
+        present(UIActivityViewController(activityItems: [text], applicationActivities: nil), animated: true)
+    }
+    
+    @objc private func showPrivacy() { present(PrivacyVC(), animated: true) }
+    
+    @objc private func changeBackground() {
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let img = info[.originalImage] as? UIImage {
+            self.bgImageView.image = img
+            if let data = img.jpegData(compressionQuality: 0.5) {
+                UserDefaults.standard.set(data, forKey: "saved_user_bg")
+            }
         }
+        picker.dismiss(animated: true)
+    }
+    
+    private func loadSavedBackground() {
+        if let data = UserDefaults.standard.data(forKey: "saved_user_bg"), let img = UIImage(data: data) {
+            self.bgImageView.image = img
+        }
+    }
+
+    // MARK: - Flow Logic
+    @objc private func startTapped() {
+        showInterface(false)
+        presentStory()
+    }
+    
+    @objc private func collectionTapped() {
+        let collectionVC = CollectionVC()
+        present(collectionVC, animated: true)
     }
     
     @objc private func legendTapped() {
@@ -90,29 +136,7 @@ class GameVC: BaseGameVC {
         backVC.modalPresentationStyle = .overFullScreen
         present(backVC, animated: true)
     }
-    
-    // Скрываем/показываем все кнопки и статы разом
-    private func showInterface(_ show: Bool) {
-        let alpha: CGFloat = show ? 1.0 : 0.0
-        UIView.animate(withDuration: 0.25) {
-            self.topPanel.alpha = alpha
-            self.startButton.alpha = alpha
-            self.collectionButton.alpha = alpha
-            self.legendButton.alpha = alpha // Теперь скрывается корректно
-        }
-    }
-    
-    private func updateStats() {
-        pointsLabel.text = "POINTS: \(GameManager.shared.points)"
-        levelLabel.text = "LEVEL: \(GameManager.shared.currentLevel)"
-    }
-    
-    // MARK: - Flow Logic
-    @objc private func startTapped() {
-        showInterface(false) // Кнопки исчезли, остался только фон BaseGameVC
-        presentStory()
-    }
-    
+
     private func presentStory() {
         let storyVC = StoryVC()
         storyVC.modalPresentationStyle = .overFullScreen
@@ -126,7 +150,7 @@ class GameVC: BaseGameVC {
         }
         present(storyVC, animated: false)
     }
-    
+
     private func presentCorrectGame() {
         let level = GameManager.shared.currentLevel
         let gameType = StoryEngine.gameType(for: level)
@@ -149,16 +173,10 @@ class GameVC: BaseGameVC {
         gameVC.modalPresentationStyle = .fullScreen
         present(gameVC, animated: false)
     }
-    
+
     private func handleWin() {
-        // 1. Повышаем уровень
         GameManager.shared.levelUp()
-        
-        // 2. Начисляем рандомные поинты (от 8 до 22)
-        let randomPoints = Int.random(in: 8...22)
-        GameManager.shared.points += randomPoints
-        
-        // 3. Обновляем лейблы на главном экране
+        GameManager.shared.points += Int.random(in: 8...22)
         updateStats()
         
         if let trophy = GameManager.shared.checkTrophy() {
@@ -166,13 +184,69 @@ class GameVC: BaseGameVC {
             resultVC.configure(with: trophy)
             present(resultVC, animated: false)
         } else {
-            // Если трофея нет, показываем следующую часть истории
             presentStory()
         }
     }
-    
-    @objc private func collectionTapped() {
-        let collectionVC = CollectionVC()
-        present(collectionVC, animated: false)
+
+    private func showInterface(_ show: Bool) {
+        let alpha: CGFloat = show ? 1.0 : 0.0
+        UIView.animate(withDuration: 0.25) {
+            self.topPanel.alpha = alpha
+            [self.startButton, self.collectionButton, self.legendButton,
+             self.rateButton, self.shareButton, self.bgButton, self.privacyButton].forEach { $0.alpha = alpha }
+        }
     }
+    
+    private func updateStats() {
+        pointsLabel.text = "POINTS: \(GameManager.shared.points)"
+        levelLabel.text = "LEVEL: \(GameManager.shared.currentLevel)"
+    }
+}
+
+// MARK: - Privacy View Controller
+class PrivacyVC: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .black
+        let textView = UITextView()
+        textView.backgroundColor = .clear
+        textView.textColor = .white
+        textView.font = .systemFont(ofSize: 14)
+        textView.isEditable = false
+        textView.text = """
+        PRIVACY POLICY AND DATA PROTECTION
+        Effective Date: April 2026
+        
+        1. General Information
+        This Privacy Policy describes how we handles your personal information. We are committed to ensuring that your privacy is protected.
+        
+        2. Data Collection and Usage
+        The App does not collect personally identifiable information such as your name, address, or phone number.
+        
+        3. Camera Access
+        Our App includes a "Custom Background" feature that requires access to your device's camera. Photos taken are used solely locally for visual customization and are not transmitted to any servers.
+        
+        4. Third-Party Services
+        We don’t collect device-identifying info. We only save your game progress and performance data.
+        
+        5. Contact Us
+        If you have any questions, please contact our support team via App Store contact form.
+        """
+        view.addSubview(textView)
+        textView.snp.makeConstraints { make in
+            make.top.left.right.equalToSuperview().inset(30)
+            make.bottom.equalToSuperview().inset(100)
+        }
+        let closeBtn = UIButton(type: .system)
+        closeBtn.setTitle("CLOSE", for: .normal)
+        closeBtn.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        closeBtn.setTitleColor(.systemYellow, for: .normal)
+        closeBtn.addTarget(self, action: #selector(dismissMe), for: .touchUpInside)
+        view.addSubview(closeBtn)
+        closeBtn.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            make.centerX.equalToSuperview()
+        }
+    }
+    @objc func dismissMe() { dismiss(animated: true) }
 }
