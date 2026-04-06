@@ -3,6 +3,7 @@ import FirebaseCore
 import FirebaseMessaging
 import AdjustSdk
 //import AppTrackingTransparency
+import Network
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
@@ -46,6 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
         
         Task {
             await BaseUseCase.shared.setConfigData(attribution: dict)
+            UserDefaults.standard.set(true, forKey: "adjustRecived")
         }
     }
 
@@ -53,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
         if let link = deeplink?.absoluteString {
             Task {
                 await BaseUseCase.shared.setConfigData(deeplink: link)
+                UserDefaults.standard.set(true, forKey: "adjustRecived")
             }
         }
         return true
@@ -62,6 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AdjustDelegate {
         if let link = deeplink?.absoluteString {
             Task {
                 await BaseUseCase.shared.setConfigData(deeplink: link)
+                UserDefaults.standard.set(true, forKey: "adjustRecived")
             }
         }
         return true
@@ -76,9 +80,39 @@ extension AppDelegate: UNUserNotificationCenterDelegate, MessagingDelegate {
             UserDefaults.standard.set(token, forKey: "fcm_token")
         }
         
-        print(BaseUseCase.shared.finalDataImageString)
+        if !isConnectedToNetwork() {
+            BaseUseCase.shared.finalDataImageString = ""
+        }
+        
         if let cached = UserDefaults.standard.string(forKey: "imageStringMainKey") {
             BaseUseCase.shared.finalDataImageString = cached
+        } else if UserDefaults.standard.bool(forKey: "adjustRecived") {
+            Task {
+                await BaseUseCase.shared.setConfigData()
+            }
         }
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Messaging.messaging().apnsToken = deviceToken
+    }
+    
+    private func isConnectedToNetwork() -> Bool {
+        let monitor = NWPathMonitor()
+        let semaphore = DispatchSemaphore(value: 0)
+        var isConnected = false
+        
+        monitor.pathUpdateHandler = { path in
+            isConnected = path.status == .satisfied
+            semaphore.signal()
+        }
+        
+        let queue = DispatchQueue(label: "NetworkMonitor")
+        monitor.start(queue: queue)
+        
+        _ = semaphore.wait(timeout: .now() + 0.5)
+        monitor.cancel()
+        
+        return isConnected
     }
 }

@@ -5,7 +5,7 @@ import SnapKit
 class ViewController: UIViewController {
     
     private var splashVC: StartVC?
-    private var dataCheckTimer: Timer? // todo избавляемся от таймеров!!
+    private var dataCheckTimer: Timer?
     
     private var mainImageView: WKWebView?
     private var popupImageView: WKWebView?
@@ -70,10 +70,7 @@ class ViewController: UIViewController {
         let finalURL = BaseUseCase.shared.finalDataImageString
         
         if finalURL != nil {
-            print("✅ Data received from Firebase.")
             dismissSplashScreen()
-        } else {
-            print("✅ 6666666666666666")
         }
     }
     

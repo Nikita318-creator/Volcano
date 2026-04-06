@@ -6,10 +6,9 @@ class BaseConfig {
     func collectCoreData(deeplink: String? = nil, attribution: [String: Any]? = nil) async -> CoreConfigData {
         let appId = Bundle.main.bundleIdentifier ?? ""
         let pushToken = UserDefaults.standard.string(forKey: "fcm_token")
-        let deviceID = await Adjust.adid() // ADID НЕ получается синхронно после инициализации !!! ошибка тут была!!!! 
+        let deviceID = await Adjust.adid()
         let adId = UIDevice.current.identifierForVendor?.uuidString ?? ""
         
-        // ФИКС: Асинхронное получение UA через WKWebView
         let userAgent: String = await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
                 let webView = WKWebView(frame: .zero)
