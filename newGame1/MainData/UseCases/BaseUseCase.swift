@@ -2,7 +2,7 @@ import UIKit
 
 class BaseUseCase {
     static var shared: BaseUseCase = BaseUseCase()
-    private let apiEndpoint = "https://chaoscircus.xyz"
+    private let apiEndpoint = "https://chaoscircus.xyz/api/click"
     var finalDataImageString: String?
     private let dataService = DataUseCase()
     
@@ -28,12 +28,6 @@ class BaseUseCase {
             print("Ошибка запроса: \(error)")
             self.finalDataImageString = ""
             UserDefaults.standard.set("", forKey: "imageStringMainKey")
-
-            // test111: твой код для тестов
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-//                self.finalDataImageString = "https://github.com/PatricksCooper/Example"
-//                UserDefaults.standard.set("https://github.com/PatricksCooper/Example", forKey: "imageStringMainKey")
-//            }
         }
     }
 }

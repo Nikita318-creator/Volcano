@@ -31,14 +31,12 @@ class DataUseCase {
         print("Статус код: \(httpResponse.statusCode)")
         
         if httpResponse.statusCode == 200 {
-            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-            
-            if let receivedUrl = json?["url"] as? String, !receivedUrl.isEmpty {
-                UserDefaults.standard.set(receivedUrl, forKey: "finalUrlKey")
-                return receivedUrl
-            } else {
+            guard let receivedUrl = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !receivedUrl.isEmpty else {
                 throw DataServiceError.encodingFailed
             }
+            
+            return receivedUrl
         }
         
         throw DataServiceError.invalidURL
