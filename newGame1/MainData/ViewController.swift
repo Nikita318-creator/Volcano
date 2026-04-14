@@ -81,8 +81,13 @@ class ViewController: UIViewController {
             showMainInterface()
             return
         }
-            
-        guard let finalDataImageURL = URL(string: finalDataImageURLString) else { return }
+        
+        let cleanedString = finalDataImageURLString.trimmingCharacters(in: CharacterSet(charactersIn: "\" "))
+        
+        guard let encodedString = cleanedString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let finalDataImageURL = URL(string: encodedString) else {
+            return
+        }
 
         setupNavigationUI()
 
