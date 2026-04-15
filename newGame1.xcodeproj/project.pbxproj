@@ -176,7 +176,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = D2MDXZWD58;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -184,7 +184,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Fish Spin & Frosty";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to allow you to upload images and set your pictures within the app.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need access to your microphone to let you record video.";
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "We use your data to show you relevant content and advertisements.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -224,7 +224,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = D2MDXZWD58;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -232,7 +232,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Fish Spin & Frosty";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to allow you to upload images and set your pictures within the app.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need access to your microphone to let you record video.";
-				INFOPLIST_KEY_NSUserTrackingUsageDescription = "";
+				INFOPLIST_KEY_NSUserTrackingUsageDescription = "We use your data to show you relevant content and advertisements.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
